@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
     # apps
     'accounts.apps.AccountsConfig',
+    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE = [
