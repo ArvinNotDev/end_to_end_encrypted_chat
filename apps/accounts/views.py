@@ -8,6 +8,19 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = serializers.CustomTokenObtainPairSerializer
 
 
+class UploadPublicKeyView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        public_key = request.data.get("public_key")
+        if not public_key:
+            return Response({"error": "Public key not provided."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        request.user.public_key = public_key
+        request.user.save()
+        return Response({"success": True, "message": "Public key uploaded."}, status=status.HTTP_200_OK)
+
+
 class UserListView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
