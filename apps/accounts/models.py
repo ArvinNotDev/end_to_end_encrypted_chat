@@ -20,19 +20,16 @@ class User(BaseModel, AbstractBaseUser):
     phone_number = models.CharField(max_length=14, unique=True, null=True, blank=True, verbose_name=_("Phone Number"))
     email = models.EmailField(max_length=200, unique=True, verbose_name=_("Email"), db_index=True)
     birth_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Birth Date"))
-    
+
     # Permission fields
     is_admin = models.BooleanField(default=False, verbose_name=_("Is Admin"))
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-
-    # Custom role fields
-    is_teacher = models.BooleanField(default=False, verbose_name=_("Is Teacher"))
-    is_employee = models.BooleanField(default=False, verbose_name=_("Is Employee"))
-    is_student = models.BooleanField(default=False, verbose_name=_("Is Student"))
-
     objects = UserManager()
+
+    # Crypto fields
+    public_key = models.TextField(null=True, blank=True, verbose_name=_("Public Key"))
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ["phone_number", "email", "first_name", "last_name"]
