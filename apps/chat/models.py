@@ -8,8 +8,16 @@ class ChatRoom(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(_("Room Name"), max_length=255, blank=True, null=True)
     is_group = models.BooleanField(_("Is Group Chat"), default=False)
+    admin = models.ForeignKey(
+            settings.AUTH_USER_MODEL,
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True,
+            related_name='admin_rooms',
+            verbose_name=_("Admin")
+        )
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
-
+    updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
     class Meta:
         verbose_name = _("Chat Room")
         verbose_name_plural = _("Chat Rooms")
