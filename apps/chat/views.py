@@ -50,3 +50,63 @@ class GroupMemberCreateView(views.APIView):
         )
         serializer = GroupMemberSerializer(member)
         return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
+
+
+class ChatRoomCreateView(generics.CreateAPIView):
+    queryset = ChatRoom.objects.all()
+    serializer_class = ChatRoomSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(admin=self.request.user)
+
+class ChatRoomListView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        rooms = ChatRoom.objects.filter(members__user=request.user).distinct()
+        serializer = ChatRoomSerializer(rooms, many=True)
+        return Response(serializer.data)
+    
+class MessageListView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, room_id):
+        room = get_object_or_404(ChatRoom, id=room_id)
+        if not room.members.filter(user=request.user).exists():
+            return Response({"error": "Access denied"}, status=403)
+
+        messages = room.messages.order_by('timestamp')
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+class GroupMemberListView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, room_id):
+        room = get_object_or_404(ChatRoom, id=room_id)
+        if not room.members.filter(user=request.user).exists():
+            return Response({"error": "Access denied"}, status=403)
+
+        members = room.members.select_related('user')
+        serializer = GroupMemberSerializer(members, many=True)
+        return Response(serializer.data)
+    
+
+class GroupMemberDeleteView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, room_id, user_id):
+        room = get_object_or_404(ChatRoom, id=room_id)
+        if room.admin != request.user:
+            return Response({"error": "Only admin can remove members."}, status=403)
+
+        if str(room.admin_id) == str(user_id):
+            return Response({"error": "Admin cannot remove themselves."}, status=400)
+
+        member = GroupMember.objects.filter(room=room, user_id=user_id).first()
+        if not member:
+            return Response({"error": "User is not a member of this room."}, status=404)
+
+        member.delete()
+        return Response({"success": True, "message": "Member removed."}, status=200)
