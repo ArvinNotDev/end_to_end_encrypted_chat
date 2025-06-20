@@ -12,6 +12,7 @@ urlpatterns = [
     path('chatrooms/<uuid:room_id>/messages/', MessageListView.as_view(), name='message-list'),
     path('chatrooms/<uuid:room_id>/members/', GroupMemberListView.as_view(), name='member-list'),
     path('chatrooms/<uuid:room_id>/members/add/', GroupMemberCreateView.as_view(), name='member-add'),
+    path('chatrooms/<uuid:room_id>/messages/send/', SendMessageView.as_view(), name='message-send'),
     path('chatrooms/<uuid:room_id>/members/<uuid:user_id>/remove/', GroupMemberDeleteView.as_view(), name='member-remove'),
     path('messages/send/', SendMessageView.as_view(), name='message-send'),
 ]

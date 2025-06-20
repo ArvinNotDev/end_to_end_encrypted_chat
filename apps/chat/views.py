@@ -9,17 +9,29 @@ from .serializers import GroupMemberSerializer, ChatRoomDetailSerializer, ChatRo
 from django.shortcuts import get_object_or_404
 
 class SendMessageView(generics.CreateAPIView):
-    queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
+    def post(self, request, room_id):
+        room = get_object_or_404(ChatRoom, id=room_id)
+
+        # Optional: Check if user is member of this room
+        if not room.members.filter(user=request.user).exists():
+            return Response({"error": "You are not a member of this room."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Add room field to data because serializer requires it
+        data = request.data.copy()
+        data['room'] = str(room_id)
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(sender=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class GroupMemberCreateView(views.APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request, room_id):
         room_id = request.data.get("room")
         user_id = request.data.get("user")
         encrypted_key = request.data.get("encrypted_key")
