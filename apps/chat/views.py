@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import views, status
 from rest_framework.response import Response
 from .models import ChatRoom, GroupMember
-from .serializers import GroupMemberSerializer
+from .serializers import GroupMemberSerializer, ChatRoomDetailSerializer, ChatRoomSerializer
 from django.shortcuts import get_object_or_404
 
 class SendMessageView(generics.CreateAPIView):
@@ -68,6 +68,16 @@ class ChatRoomListView(views.APIView):
         serializer = ChatRoomSerializer(rooms, many=True)
         return Response(serializer.data)
     
+class ChatRoomDetailView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, room_id):
+        room = get_object_or_404(ChatRoom, id=room_id)
+        if not room.members.filter(user=request.user).exists():
+            return Response({"error": "Access denied."}, status=403)
+        serializer = ChatRoomDetailSerializer(room)
+        return Response(serializer.data)
+    
 class MessageListView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -86,8 +96,7 @@ class GroupMemberListView(views.APIView):
     def get(self, request, room_id):
         room = get_object_or_404(ChatRoom, id=room_id)
         if not room.members.filter(user=request.user).exists():
-            return Response({"error": "Access denied"}, status=403)
-
+            return Response({"error": "Access denied."}, status=403)
         members = room.members.select_related('user')
         serializer = GroupMemberSerializer(members, many=True)
         return Response(serializer.data)
