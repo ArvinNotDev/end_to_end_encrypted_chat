@@ -6,6 +6,7 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('users/', UserListView.as_view(), name='user_list'),
+    path('users/create/', UserCreateView.as_view(), name='user_create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('users/upload-public-key/', UploadPublicKeyView.as_view(), name='upload_public_key'),
 ]

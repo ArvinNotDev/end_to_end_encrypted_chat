@@ -35,6 +35,9 @@ class UserListView(views.APIView):
         serializer = serializers.UserSerializer(paginated_users, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+
+class UserCreateView(views.APIView):
+
     def post(self, request):
         serializer = serializers.UserSerializer(data=request.data)
         if serializer.is_valid():
