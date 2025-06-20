@@ -1,5 +1,6 @@
 from django.urls import path
+from .views import GroupMemberCreateView
 
 urlpatterns = [
-    None
+    path('group-members/', GroupMemberCreateView.as_view(), name='group-member-create'),
 ]
