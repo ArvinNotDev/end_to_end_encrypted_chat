@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     # apps
     'accounts.apps.AccountsConfig',
     'chat.apps.ChatConfig',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+ASGI_APPLICATION = 'myproject.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
 
